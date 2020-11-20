@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
+import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import Styled from 'styled-components/native';
 import Markers from './components/Markers';
 
