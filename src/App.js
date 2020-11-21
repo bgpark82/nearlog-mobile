@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import Styled from 'styled-components/native';
 import Markers from './components/Markers';
@@ -32,17 +32,28 @@ const App = () => {
 
   const onPressButton = () => {
     CameraRoll.getPhotos({
-      first: 100,
+      first: 10,
       assetType: 'Photos',
     })
       .then((r) => {
-        console.log(r);
         setPhotos(r.edges);
+        r.edges.map((p) => {
+          const {latitude, longitude} =
+            p.node.location != null
+              ? p.node.location
+              : {latitude: 0, longitude: 0};
+          const image = p.node.image.uri;
+          setMarkers([...markers, {latitude, longitude, image}]);
+        });
       })
       .catch((err) => {
-        console.err(err);
+        console.error(err);
       });
   };
+
+  useEffect(() => {
+    console.log(markers);
+  }, [markers, photos]);
 
   return (
     <Container>
@@ -53,11 +64,11 @@ const App = () => {
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
-        style={{flex: 1}}
+        style={{flex: 0.5}}
         provider={PROVIDER_GOOGLE}>
         <Markers markers={markers} />
       </MapView>
-      <View>
+      <View style={{flex: 0.5}}>
         <Button title="사진 불러오기" onPress={onPressButton} />
         <ScrollView>
           {photos.map((p, i) => (
