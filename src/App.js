@@ -3,7 +3,7 @@ import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
 import Styled from 'styled-components/native';
 import Markers from './components/Markers';
 import CameraRoll from '@react-native-community/cameraroll';
-import {View, Button, ScrollView, Image} from 'react-native';
+import Album from './components/Album';
 
 const Container = Styled.View`
   flex: 1;
@@ -37,23 +37,19 @@ const App = () => {
     })
       .then((r) => {
         setPhotos(r.edges);
-        r.edges.map((p) => {
-          const {latitude, longitude} =
-            p.node.location != null
-              ? p.node.location
-              : {latitude: 0, longitude: 0};
-          const image = p.node.image.uri;
-          setMarkers([...markers, {latitude, longitude, image}]);
-        });
       })
       .catch((err) => {
         console.error(err);
       });
   };
 
-  useEffect(() => {
-    console.log(markers);
-  }, [markers, photos]);
+  const onPressPhoto = (photo) => {
+    const {latitude, longitude} = photo.node.location
+      ? photo.node.location
+      : {latitude: 0, longitude: 0};
+    const image = photo.node.image.uri;
+    setMarkers([...markers, {latitude, longitude, image}]);
+  };
 
   return (
     <Container>
@@ -68,18 +64,11 @@ const App = () => {
         provider={PROVIDER_GOOGLE}>
         <Markers markers={markers} />
       </MapView>
-      <View style={{flex: 0.5}}>
-        <Button title="사진 불러오기" onPress={onPressButton} />
-        <ScrollView>
-          {photos.map((p, i) => (
-            <Image
-              key={i}
-              style={{width: 100, height: 100}}
-              source={{uri: p.node.image.uri}}
-            />
-          ))}
-        </ScrollView>
-      </View>
+      <Album
+        onPressButton={onPressButton}
+        onPressPhoto={onPressPhoto}
+        photos={photos}
+      />
     </Container>
   );
 };
